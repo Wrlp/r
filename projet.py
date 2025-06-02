@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 
 # Données
 points = [(1,1), (1,2), (1,5), (3,4), (4,3), (6,2), (0,4)]
+noms = ["M1", "M2", "M3"]
 x = np.array([p[0] for p in points])
 y = np.array([p[1] for p in points])
 
@@ -98,10 +99,14 @@ def dist_min(tableau, dist_func):
 # 3.
 
 # Tracé
-plt.figure(figsize=(6, 6))
-for name, (x, y) in points.items():
-    plt.scatter(x, y, color='blue')
-    plt.text(x + 0.1, y, name, fontsize=12)
+plt.scatter(x, y, color='blue')
+for i in range(len(points)):
+    plt.text(x[i] + 0.1, y[i] + 0.1, noms[i])
+plt.title("Nuage de points")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.grid()
+plt.show()
 
 # Initialisation de la matrice
 n = len(x)
