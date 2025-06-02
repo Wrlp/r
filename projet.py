@@ -96,15 +96,6 @@ def dist_min(tableau, dist_func):
 
 
 # 3.
-points = {
-    "M1": (1, 1),
-    "M2": (1, 2),
-    "M3": (1, 5),
-    "M4": (3, 4),
-    "M5": (4, 3),
-    "M6": (6, 2),
-    "M7": (0, 4)
-}
 
 # Tracé
 plt.figure(figsize=(6, 6))
@@ -113,21 +104,21 @@ for name, (x, y) in points.items():
     plt.text(x + 0.1, y, name, fontsize=12)
 
 # Initialisation de la matrice
-n = len(points)
+n = len(x)
 matrice_1 = np.zeros((n, n))
 
 # Remplissage de la matrice avec d²
 for i in range(n):
     for j in range(n):
-        xi, yi = points[names[i]]
-        xj, yj = points[names[j]]
+        xi, yi = points[x[i]]
+        xj, yj = points[x[j]]
         d_squared = (xi - xj)**2 + (yi - yj)**2
         matrice_1[i][j] = d_squared
 
 # Affichage avec pandas pour lisibilité
-df = pd.DataFrame(matrice_1, index=names, columns=names)
+data = pd.DataFrame(matrice_1, index=x, columns=x)
 print("Matrice des distances euclidiennes au carré :\n")
-print(df.round(1))
+print(data.round(1))
 
 # Encadrer M3 et M7 (Classe Γ₁)
 x_vals = [points["M1"][0], points["M7"][0]]
