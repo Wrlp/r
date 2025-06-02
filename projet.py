@@ -292,9 +292,9 @@ print(data.round(1))
 
 
 # Encadrer M1 et M7 (Classe Γ₁)
-x_vals = [points["M1"][0], points["M7"][0]]
-y_vals = [points["M1"][1], points["M7"][1]]
-plt.plot(x_vals, y_vals, 'ro--')
+x_vals = [points[0][0], points[6][0]]
+y_vals = [points[0][1], points[6][1]]
+#plt.plot(x_vals, y_vals, 'ro--')
 plt.scatter(x_vals, y_vals, color='red')
 plt.title("Regroupement initial : Classe Γ₁ = {M1, M7}")
 plt.grid(True)
