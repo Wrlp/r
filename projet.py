@@ -49,4 +49,7 @@ plt.savefig("figure_2_1.jpg")
 print("Graphique enregistré dans le fichier figure_2_1.jpg")
 
 
+#########################################
+#               Partie 4                #
+#########################################
 
