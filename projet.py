@@ -1,3 +1,7 @@
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+>>>>>>> Stashed changes
 import numpy as np
 
 points =[(1,1),(1,2),(1,5),(3,4),(4,3),(6,2),(0,4)]
