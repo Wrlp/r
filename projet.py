@@ -115,7 +115,7 @@ MSE = SCE / (n-2)
 
 print("MSE (Erreur quadratique moyenne) :", MSE)
 
-#Le n-2 vient du fait qu'on a estimé 2 paramètres (b₀ et b₁). On parle alors de degrés de liberté.
+#Le n-2 vient du fait qu'on a estimé 2 paramètres (b0 et b1). On parle alors de degrés de liberté.
 
 #3. Ecart-type des erreurs
 s = np.sqrt(MSE)
@@ -124,6 +124,30 @@ print("Écart-type des erreurs :", s)
 
 #4. Interprétation des Résultats
 
+# 🔹 Interprétation des coefficients
+
+#     b0=3.33 (ordonnée à l'origine) : c'est la valeur estimée de y quand x=0. Cela signifie qu'à l'origine de l'axe x, la droite de régression prévoit y=3.33.
+
+#     b1=−0.15 (pente) : chaque augmentation de 1 unité en x entraîne une baisse moyenne de y de 0.15. La relation est donc légèrement décroissante, mais très faible.
+
+# 🔹 Coefficient de détermination R2
+
+#     Le R2=0.049 (soit 4.9%) indique que seulement 4.9% de la variation de y est expliquée par la variable x.
+
+#     Cela signifie que la droite de régression explique très peu la variabilité des points. La majorité de la variation de y provient donc d'autres facteurs non capturés par ce modèle.
+
+# 🔹 Analyse des erreurs
+
+#     SCE (Somme des carrés des erreurs) : 11.42
+#     → mesure l’erreur globale du modèle (plus elle est faible, meilleur est l’ajustement).
+
+#     MSE (Erreur quadratique moyenne) : 2.28
+#     → estimation de la variance des erreurs résiduelles.
+
+#     Écart-type des erreurs : 1.51
+#     → en moyenne, les prédictions du modèle s’écartent de 1.51 unités des valeurs réelles.
+
+#     Comparé à l’écart-type total de y qui est de 1.31, cela montre que la droite n'améliore pas vraiment la prédiction par rapport à une moyenne constante.
 
 #########################################
 #               Partie 4                #
