@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy import stats
 
 points =[(1,1),(1,2),(1,5),(3,4),(4,3),(6,2),(0,4)]
 noms= ["M1", "M2", "M3", "M4", "M5", "M6", "M7"]
@@ -131,3 +132,62 @@ print("Écart-type des erreurs :", s)
 # 4.1 Estimation de la variance des erreurs
 
 # 4.2 Erreurs Standards des Coefficients
+
+# Erreur standard de la pente
+somme_x=0
+for i in range(len(points)):
+    somme_x += (x[i]-x_moy)**2
+
+SEb1 = s/np.sqrt(somme_x)
+print("Erreur standard de la pente:", SEb1)
+
+# Erreur standard de l'ordonnée à l'origine
+SEb0 = s*np.sqrt(1/n+x_moy**2/somme_x)
+print("Erreur standard de l'ordonnée à l'origine", SEb0)
+
+# 4.3 Test d'Hypothèse pour la Pente (b1)
+
+# Hypothèses :
+# H0 : b1 = 0 (pas de relation linéaire)
+# H1 : b1 != 0 (relation linéaire significative)
+
+# Statistique de test
+
+t_b1 = (b1-0)/SEb1 # t suit une loi de Student donc on calcul la p-valeur pour savoir si on rejette l'hypothèse ou non
+p_b1 = 2 * (1 - stats.t.cdf(abs(t_b1), df=n - 2))
+print("valeur de test", t_b1)
+print("p-valeur:", p_b1)
+if(p_b1<0.05):
+    print("p-valeur<0,05 donc on rejette l'hypothèse, b1 est significatif")
+else:
+    print("p-valeur>0,05 donc on ne rejette pas l'hypothèse, il n'y a pas de preuve de relation linéaire")
+    
+
+# 4.4 Test d'Hypothèse pour l'Ordonnée à l'Origine (b0)
+# Hypothèses : H0 : b0 = 0 vs H1 : b0 != 0
+
+# Statistique de test
+
+t_b0 = (b0-0)/SEb0
+p_b0 = 2 * (1 - stats.t.cdf(abs(t_b0), df=n - 2))
+print("valeur de test", t_b0)
+print("p-valeur:", p_b0)
+if(p_b0<0.05):
+    print("p-valeur<0,05 donc on rejette l'hypothèse, b0 est significatif")
+else:
+    print("p-valeur>0,05 donc on ne rejette pas l'hypothèse, il n'y a pas de preuve de relation linéaire")
+
+# 4.5 Intervalles de Confiance pour les Coefficients
+
+alpha = 0.05
+
+t_crit = stats.t.cdf(1-alpha/2, df= n-2)
+
+IC_b1=[float(b1-t_crit*SEb1),float(b1+t_crit*SEb1)]
+IC_b0=[float(b0-t_crit*SEb0),float(b0+t_crit*SEb0)]
+
+print("Intervalle de confiance à 95% pour b1:", IC_b1)
+print("Intervalle de confiance à 95% pour b0:", IC_b0)
+
+# 4.6 Interprétation des Tests Statistiques
+
