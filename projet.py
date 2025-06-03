@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
+from scipy.cluster.hierarchy import linkage, dendrogram
 import math
 import pandas as pd
 
@@ -387,8 +388,8 @@ plt.xlim(-1, 7)
 plt.ylim(0, 6)
 plt.show()
 
-plt.savefig("figure_5_3.jpg")
-print("Graphique enregistré dans le fichier figure_5_3.jpg")
+# plt.savefig("figure_5_3.jpg")
+# print("Graphique enregistré dans le fichier figure_5_3.jpg")
 
 
 #4.
@@ -479,3 +480,25 @@ for a in range(taille):
 print("Matrice avec Gamma1 et les 5 autres points (distances au carré) \n")
 df = pd.DataFrame(matrice_2, index=noms_total, columns=noms_total)
 print(df.round(1))
+
+# 6.
+
+# Étape 1 : calcul de la matrice de linkage avec méthode "single"
+# La fonction linkage construit la hiérarchie de regroupement en utilisant la distance euclidienne.
+# Ici, on utilise la méthode 'single' (plus proche voisin), ce qui signifie que la distance entre deux groupes est définie comme la distance minimale entre un point de l'un et un point de l'autre.
+# Cette ligne automatise toutes les étapes de fusion des groupes jusqu'à ce qu'il n'en reste plus qu'un.
+linked = linkage(points, method='single', metric='euclidean') # La variable linked contient toutes les étapes de regroupement.
+
+# Étape 2 : Affichage du dendrogramme
+# La fonction dendrogram() affiche visuellement les fusions successives entre groupes.
+# Chaque branche représente une étape de regroupement ; plus elle est haute, plus la distance entre les groupes fusionnés est grande.
+# Les labels permettent de visualiser quels points (M1 à M7) sont fusionnés à chaque étape.
+# Cela remplace et résume graphiquement toutes les étapes manuelles de la classification (Γ1, Γ2, etc.).
+plt.figure(figsize=(10, 6))
+plt.figure(figsize=(10, 6))
+dendrogram(linked, labels=["M1", "M2", "M3", "M4", "M5", "M6", "M7"])
+plt.title('Dendrogramme - CAH (single linkage)')
+plt.xlabel('Points')
+plt.ylabel('Distance euclidienne')
+plt.grid(True)
+plt.show()
