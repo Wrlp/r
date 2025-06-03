@@ -411,7 +411,6 @@ def dist_groupe_groupe(groupe1, groupe2):
     # distance minimale entre un point de groupe1 et un point de groupe2
     return min(dist(p1, p2) for p1 in groupe1 for p2 in groupe2)
 #____________________________________________________________________________
-
 #matrice avec GAMMA 1
 
 classe_G1= list(pair_min)
@@ -491,8 +490,8 @@ else:
 x_vals2= [p1[0], p2[0]]
 y_vals2=[p1[1], p2[1]]
 
-plt.plot(x_vals2, y_vals2, 'ro--', label="Classe Γ2")
-plt.scatter(x_vals2, y_vals2, color='red')
+plt.plot(x_vals2, y_vals2, 'o--', color='orange', label="Classe Γ2")
+plt.scatter(x_vals2, y_vals2, color='orange')
 
 
 # 5.5.
@@ -543,6 +542,10 @@ print("\n")
 
 #GAMMA 3
 
+# On suppose que classe_G1 et classe_G2 sont déjà définies (Γ1 et Γ2)
+groupes = [classe_G1, classe_G2]
+points_isoles = points_restants2  # points encore non groupés après Γ2
+
 # Trouver la paire avec la distance minimale (hors diagonale 0)
 min_dist = float('inf')
 fusion_indices = (None, None)
@@ -556,53 +559,27 @@ for i in range(n):
             min_dist = matrice_3[i, j]
             fusion_indices = (i, j)
 
-# Construire la liste des points formant Γ3
-if 0 in fusion_indices or 1 in fusion_indices:
-    # Fusion entre un groupe Γ1 ou Γ2 et un point isolé
-    # On identifie quel groupe et quel point isolé
-    if fusion_indices[0] == 0:
-        groupe_fusion = classe_G1
-        autre_idx = fusion_indices[1]
-    elif fusion_indices[1] == 0:
-        groupe_fusion = classe_G1
-        autre_idx = fusion_indices[0]
-    elif fusion_indices[0] == 1:
-        groupe_fusion = classe_G2
-        autre_idx = fusion_indices[1]
-    else:  # fusion_indices[1] == 1
-        groupe_fusion = classe_G2
-        autre_idx = fusion_indices[0]
-    
-    # Ajouter le point isolé à la classe fusionnée
-    classe_G3 = groupe_fusion + [points_restants2[autre_idx - 2]]  # -2 car indices 0,1 sont groupes
-else:
-    # Fusion entre deux points isolés
-    classe_G3 = [points_restants2[fusion_indices[0] - 2], points_restants2[fusion_indices[1] - 2]]
+# Fonction pour récupérer un groupe ou un point isolé à partir d’un indice
+def get_groupe_ou_point(idx):
+    if idx < len(groupes):
+        return groupes[idx]
+    else:
+        return [points_isoles[idx - len(groupes)]]
+
+# Fusion des deux entités (groupes ou points)
+classe_G3 = get_groupe_ou_point(fusion_indices[0]) + get_groupe_ou_point(fusion_indices[1])
 
 print("Points dans Γ3 :", classe_G3, "\n")
 
-# Récupérer les indices pour tracer (optionnel)
-i1, i2 = fusion_indices
+# Tracer la ligne entre les deux éléments fusionnés
+p1 = get_groupe_ou_point(fusion_indices[0])[0]
+p2 = get_groupe_ou_point(fusion_indices[1])[0]
 
-if i1 <= 1:
-    p1 = classe_G1[0] if i1 == 0 else classe_G2[0]
-else:
-    p1 = points_restants2[i1 - 2]
-
-if i2 <= 1:
-    p2 = classe_G1[0] if i2 == 0 else classe_G2[0]
-else:
-    p2 = points_restants2[i2 - 2]
-
-# Tracer la ligne entre les deux points formant Γ3 (optionnel)
 x_vals3 = [p1[0], p2[0]]
 y_vals3 = [p1[1], p2[1]]
 
-plt.plot(x_vals3, y_vals3, 'o--',color='orange', label="Classe Γ3")
-plt.scatter(x_vals3, y_vals3, color='orange')
-
-plt.legend()
-plt.show()
+plt.plot(x_vals3, y_vals3, 'o--', color='red', label="Classe Γ3")
+plt.scatter(x_vals3, y_vals3, color='red')
 
 # matrice avec GAMMA 3
 
@@ -612,49 +589,49 @@ points_restants3 = [p for p in points if p not in classe_G1 and p not in classe_
 n_total3 = len(points_restants3)
 
 # Matrice carrée de taille nombre de groupes (3) + points restants
-matrice_3 = np.zeros((n_total3 + 3, n_total3 + 3))
+matrice_4 = np.zeros((n_total3 + 3, n_total3 + 3))
 
 # Distances entre les groupes (diagonale à 0)
-matrice_3[0][0] = 0  # Γ1 - Γ1
-matrice_3[1][1] = 0  # Γ2 - Γ2
-matrice_3[2][2] = 0  # Γ3 - Γ3
+matrice_4[0][0] = 0  # Γ1 - Γ1
+matrice_4[1][1] = 0  # Γ2 - Γ2
+matrice_4[2][2] = 0  # Γ3 - Γ3
 
 # Distances entre groupes
-matrice_3[0][1] = dist_groupe_groupe(classe_G1, classe_G2)
-matrice_3[1][0] = matrice_3[0][1]
+matrice_4[0][1] = dist_groupe_groupe(classe_G1, classe_G2)
+matrice_4[1][0] = matrice_4[0][1]
 
-matrice_3[0][2] = dist_groupe_groupe(classe_G1, classe_G3)
-matrice_3[2][0] = matrice_3[0][2]
+matrice_4[0][2] = dist_groupe_groupe(classe_G1, classe_G3)
+matrice_4[2][0] = matrice_4[0][2]
 
-matrice_3[1][2] = dist_groupe_groupe(classe_G2, classe_G3)
-matrice_3[2][1] = matrice_3[1][2]
+matrice_4[1][2] = dist_groupe_groupe(classe_G2, classe_G3)
+matrice_4[2][1] = matrice_4[1][2]
 
 # Distances entre chaque groupe et les points restants
 for i, p in enumerate(points_restants3):
     d1 = dist_groupe_point(classe_G1, p)
-    matrice_3[0, i + 3] = d1
-    matrice_3[i + 3, 0] = d1
+    matrice_4[0, i + 3] = d1
+    matrice_4[i + 3, 0] = d1
     
     d2 = dist_groupe_point(classe_G2, p)
-    matrice_3[1, i + 3] = d2
-    matrice_3[i + 3, 1] = d2
+    matrice_4[1, i + 3] = d2
+    matrice_4[i + 3, 1] = d2
     
     d3 = dist_groupe_point(classe_G3, p)
-    matrice_3[2, i + 3] = d3
-    matrice_3[i + 3, 2] = d3
+    matrice_4[2, i + 3] = d3
+    matrice_4[i + 3, 2] = d3
 
 # Distances entre points restants
 for i in range(n_total3):
     for j in range(n_total3):
         if i == j:
-            matrice_3[i + 3, j + 3] = 0
+            matrice_4[i + 3, j + 3] = 0
         else:
-            matrice_3[i + 3, j + 3] = dist(points_restants3[i], points_restants3[j])
+            matrice_4[i + 3, j + 3] = dist(points_restants3[i], points_restants3[j])
 
 # Noms des groupes + points restants
 noms_groupes3 = ["Γ1", "Γ2", "Γ3"] + [f"{noms[points.index(p)]}" for p in points_restants3]
 
-df3 = pd.DataFrame(matrice_3, index=noms_groupes3, columns=noms_groupes3)
+df3 = pd.DataFrame(matrice_4, index=noms_groupes3, columns=noms_groupes3)
 print("Matrice des distances euclidiennes au carré avec Γ1, Γ2 et Γ3 :\n")
 print(df3.round(1))
 print("\n")
@@ -662,6 +639,40 @@ print("\n")
 #GAMMA 4
 
 
+# Trouver la paire avec la distance minimale (hors diagonale 0)
+min_dist = float('inf')
+fusion_indices = (None, None)
+
+n = matrice_4.shape[0]
+
+# Double boucle pour trouver la distance minimale au-dessus de la diagonale
+for i in range(n):
+    for j in range(i + 1, n):
+        if matrice_4[i, j] < min_dist:
+            min_dist = matrice_4[i, j]
+            fusion_indices = (i, j)
+# Définir les groupes déjà créés
+groupes = [classe_G1, classe_G2, classe_G3]
+points_isoles = points_restants3
+
+# Fusion selon les indices
+classe_G4 = get_groupe_ou_point(fusion_indices[0]) + get_groupe_ou_point(fusion_indices[1])
+
+print("Points dans Γ4 :", classe_G4, "\n")
+
+# Récupérer les deux premiers points pour le tracé -> LIMITE DU TRACE
+p1 = get_groupe_ou_point(fusion_indices[0])[0]
+p2 = get_groupe_ou_point(fusion_indices[1])[0]
+
+# Tracer
+x_vals4 = [p1[0], p2[0]]
+y_vals4 = [p1[1], p2[1]]
+
+plt.plot(x_vals4, y_vals4, 'o--', color='purple', label="Classe Γ4")
+plt.scatter(x_vals4, y_vals4, color='purple')
+
+plt.legend()
+plt.show()
 
 # 5.6.
 
