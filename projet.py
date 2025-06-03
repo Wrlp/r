@@ -302,6 +302,12 @@ def dist_inf(p1, p2):
 
 
 # 2.
+'''
+La fonction dist_min est une fonction permettant de retourner un couple de point situés à une distance minimale l'un de l'autre
+paramètre
+    tableau : un tableau de points
+    dist_func : la fonction du calcul de la distance entre deux points que l'on veut utiliser
+'''
 def dist_min(tableau, dist_func):
     min_d = float('inf')
     couple_points = None
