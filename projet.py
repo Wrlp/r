@@ -385,23 +385,15 @@ plt.title("Regroupement des 2 points les plus proches")
 plt.grid(True)
 plt.xlim(-1, 7)
 plt.ylim(0, 6)
-plt.show()
 
 plt.savefig("figure_5_3.jpg")
 print("Graphique enregistré dans le fichier figure_5_3.jpg")
 
 
 #4.
-
-# Trouver le couple le plus proche
-min_dist = float('inf') #valeur très grande (infini)
-min_pair = (0, 0) 
-
-min_pair, min_dist = dist_min(points, dist)
-
 # Points de Gamma1 (groupe initial)
 # dist_min retourne un couple de points (p1, p2)
-p1, p2 = min_pair
+p1, p2 = pair_min
 
 # retrouver les indices de ces points dans la liste points
 i = points.index(p1)
@@ -479,3 +471,110 @@ for a in range(taille):
 print("Matrice avec Gamma1 et les 5 autres points (distances au carré) \n")
 df = pd.DataFrame(matrice_2, index=noms_total, columns=noms_total)
 print(df.round(1))
+
+#Trouver Gamma2
+
+'''trouver la distance minimale dans une matrice, ainsi que les points correspondants
+sauf sur la diagonale'''
+def trouver_distance_minimale(matrice, noms):
+    min_dist = float('inf')
+    indices = (-1, -1)
+    
+    for i in range(len(matrice)):
+        for j in range(len(matrice)):
+            if i != j and matrice[i][j] < min_dist:
+                min_dist = matrice[i][j]
+                indices = (i, j)
+    
+    nom_i = noms[indices[0]]
+    nom_j = noms[indices[1]]
+    return nom_i, nom_j, min_dist
+
+
+p1_min, p2_min, d_min = trouver_distance_minimale(matrice_2, noms_total)
+
+# retrouver les indices de ces points dans la liste points
+i = noms_total.index(p1_min)
+j = noms_total.index(p2_min)
+
+# p1_min et p2_min sont des noms
+Gamma2_noms = [p1_min, p2_min]
+Gamma2 = []           # les points de Gamma2
+reste_points2 = []    # les autres points
+reste_noms2 = []      # leurs noms
+
+# On boucle sur noms et points restants (sauf G1 déjà groupé)
+for i in range(1, len(noms_total)):  # on saute "G1", qui est déjà dans Gamma1
+    nom = noms_total[i]
+    pt = reste_points[i - 1]  # car reste_points n'inclut pas "G1"
+    
+    if nom in Gamma2_noms:
+        Gamma2.append(pt)
+    else:
+        reste_points2.append(pt)
+        reste_noms2.append(nom)
+
+# Construction de la matrice 3 (G1, G2, autres points restants)
+groupes = [Gamma1, Gamma2]  # listes de 2 points chacun
+noms_total2 = ["G1", "G2"] + reste_noms2
+tous_points = groupes + [[p] for p in reste_points2]  # chaque point devient un "groupe d’un point"
+taille = len(tous_points)
+
+matrice_3 = np.zeros((taille, taille))
+
+for i in range(taille):
+    for j in range(taille):
+        if i == j: #sur la diagonale
+            matrice_3[i][j] = 0
+        else:
+            # Si un des deux est un groupe (contient 2 points), on fait la distance segment-point
+            if len(tous_points[i]) == 2 and len(tous_points[j]) == 1:
+                px, py = tous_points[j][0]
+
+                #i est le segment
+                ax, ay = tous_points[i][0]
+                bx, by = tous_points[i][1]
+
+                matrice_3[i][j] = distance_point_segment(px, py, ax, ay, bx, by)
+            elif len(tous_points[i]) == 1 and len(tous_points[j]) == 2:
+                px, py = tous_points[i][0]
+
+                #j est le segment
+                ax, ay = tous_points[j][0]
+                bx, by = tous_points[j][1]
+
+                matrice_3[i][j] = distance_point_segment(px, py, ax, ay, bx, by)
+            else:
+                # distance entre deux points
+                x1, y1 = tous_points[i][0]
+                x2, y2 = tous_points[j][0]
+                matrice_3[i][j] = (x1 - x2)**2 + (y1 - y2)**2
+
+            matrice_2[a][b] = (x1 - x2)**2 + (y1 - y2)**2
+
+# Affichage final
+print("Matrice avec Gamma1, Gamma2 et les autres points (distances au carré) \n")
+df = pd.DataFrame(matrice_3, index=noms_total2, columns=noms_total2)
+print(df.round(1))
+
+#Tracé
+
+'''récupère les coordonnées des points sachant qu'on connait leurs noms'''
+def coord_from_nom(nom):
+    if nom == "G1":
+        return Gamma1[0]  # ou centre du groupe si tu veux
+    elif nom == "G2":
+        return Gamma2[0]
+    else:
+        return points[noms.index(nom)]
+
+
+x1, y1 = coord_from_nom(p1_min)
+x2, y2 = coord_from_nom(p2_min)
+
+x_vals2 = [x1, x2]
+y_vals2 = [y1, y2]
+
+plt.plot(x_vals2, y_vals2, 'bo--', label="Classe Γ2")
+plt.scatter(x_vals2, y_vals2, color='blue')
+plt.show()
