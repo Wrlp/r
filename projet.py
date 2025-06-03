@@ -4,6 +4,8 @@ from scipy import stats
 from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
 import math
 import pandas as pd
+from sklearn.metrics import silhouette_score
+from sklearn.preprocessing import StandardScaler
 
 points =[(1,1),(1,2),(1,5),(3,4),(4,3),(6,2),(0,4)]
 noms= ["M1", "M2", "M3", "M4", "M5", "M6", "M7"]
@@ -539,7 +541,7 @@ print(df3.round(1))
 #GAMMA 3
 
 
-# 6.
+# 5.6.
 
 # Étape 1 : calcul de la matrice de linkage avec méthode "single"
 # La fonction linkage construit la hiérarchie de regroupement en utilisant la distance euclidienne.
@@ -582,4 +584,71 @@ for i, nom in enumerate(noms):
     print(f"{nom} → Groupe {groupes[i]}")
 
 # 5.8.
+# on charge les données du fichier
+df = pd.read_excel("Data_PE_2025-CSI3_CIR3.xlsx")
+print(df.head())
+
+# On supprime la première ligne vide si elle existe
+df = df.dropna(how='all')
+
+# On sépare les colonnes
+noms_tab = df.iloc[:, 0]  # première colonne : noms des individus
+data = df.iloc[:, 1:].astype(float)  # colonnes numériques uniquement et on convertit en float pour éviter les erreurs
+
+# On s'assure que toutes les valeurs sont numériques, en forçant les erreurs à NaN
+data = data.apply(pd.to_numeric, errors='coerce')
+
+valid_rows = data.dropna() # On supprime les lignes contenant des NaN (données manquantes)
+noms_tab2 = noms_tab[valid_rows.index]  # On filtre les noms des individus pour qu'ils correspondent exactement aux lignes valides
+data = valid_rows # On remplace 'data' par la version nettoyée sans valeurs manquantes
+
+#  On normalise les données (centrer-réduire) : chaque colonne aura moyenne 0 et écart-type 1
+scaler = StandardScaler()
+data_scaled = scaler.fit_transform(data)
+
+huit = linkage(data_scaled, method='ward') # On applique la Classification Ascendante Hiérarchique (CAH) avec la méthode de Ward
+
+# On trace le dendrogramme (arbre de regroupement hiérarchique)
+plt.figure(figsize=(12, 6))
+dendrogram(huit, labels=noms_tab2.tolist(), leaf_rotation=90)  # On affiche les noms des individus
+plt.title("Dendrogramme CAH")
+plt.xlabel("Individus")
+plt.ylabel("Distance")
+plt.axhline(y=15, color='r', linestyle='--') # Ligne horizontale suggérant une coupure (choix de nombre de groupes)
+plt.tight_layout()
+plt.show()
+
+# On cherche automatiquement le meilleur nombre de groupes en testant de 2 à 10 groupes
+print("\nÉvaluation du coefficient de silhouette pour différents groupes :")
+# coefficient de silhouette : mesure de la qualité d’un regroupement 
+best_score = -1 # On initialise le meilleur score à une valeur très basse
+best_k = None # Variable qui contiendra le meilleur nombre de groupes
+for k in range(2, 11): # On teste les valeurs de k de 2 à 10, on commence à 2 car à 1 les individus sont dans le même groupe, 10 car cela suffit pour ce jeu de données
+    labels = fcluster(huit, t=k, criterion='maxclust') # On coupe l'arbre pour obtenir k groupes
+    score = silhouette_score(data_scaled, labels) # On calcule le score de silhouette pour évaluer la qualité du regroupement
+    print(f"{k} groupes : coefficient de silhouette = {score:.4f}") # Affichage du score
+    if score > best_score: # Si ce score est le meilleur qu'on a vu jusque-là
+        best_score = score # On le sauvegarde
+        best_k = k # On note la valeur de k correspondante
+
+print(f"\nMeilleur nombre de groupes : {best_k} avec un coefficient de silhouette de {best_score:.4f}") # On affiche le meilleur nombre de groupes et le meilleur score obtenu
+
+# Le Silhouette Score mesure dans quelle mesure un objet est bien attribué à son groupe, par rapport aux autres groupes.
+# Pour un point ii, on calcule :
+#    a(i)a(i) : la distance moyenne entre ii et tous les autres points du même groupe.
+#    b(i)b(i) : la plus petite distance moyenne entre ii et tous les points des autres groupes (c'est-à-dire le groupe voisin le plus proche).
+
+# Ensuite, on calcule le score silhouette de ii :
+#   s(i)=b(i)−a(i)max⁡(a(i),b(i))
+#   s(i)=max(a(i),b(i))b(i)−a(i)​
+# Interprétation :
+#    s(i)≈1s(i)≈1 : Le point est bien regroupé, très loin des autres groupes.
+#    s(i)≈0s(i)≈0 : Le point est à la frontière entre deux groupes.
+#    s(i)<0s(i)<0 : Le point est mal classé, plus proche d’un autre groupe que du sien.
+# Silhouette Score global :
+#   On calcule la moyenne des s(i)s(i) pour tous les points afin d’évaluer la qualité globale du regroupemennt.
+#   Silhouette Score global ≈ 1 : Très bons groupes.
+#     ≈ 0 : groupes qui se chevauchent.
+#     < 0 : Mauvais regroupement
+
 
