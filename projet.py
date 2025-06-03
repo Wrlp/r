@@ -684,9 +684,11 @@ plt.grid(True)
 plt.show()
 
 # Créer les groupes à partir du seuil
-groupes = fcluster(linked, t=seuil, criterion='distance')
-
+groupes = fcluster(linked, t=seuil, criterion='distance') # Former des groupes 
 # Affichage des groupes formés, ce sont les classes obtenues
 print("Groupes obtenus (avec seuil de distance =", seuil, ") :")
 for i, nom in enumerate(noms):
     print(f"{nom} → Groupe {groupes[i]}")
+
+# 8.
+
