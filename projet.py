@@ -491,7 +491,6 @@ linked = linkage(points, method='single', metric='euclidean') # La variable link
 # Les labels permettent de visualiser quels points (M1 à M7) sont fusionnés à chaque étape.
 # Cela remplace et résume graphiquement toutes les étapes manuelles de la classification (Γ1, Γ2, etc.).
 plt.figure(figsize=(10, 6))
-plt.figure(figsize=(10, 6))
 dendrogram(linked, labels=["M1", "M2", "M3", "M4", "M5", "M6", "M7"])
 plt.title('Dendrogramme - CAH (single linkage)')
 plt.xlabel('Points')
