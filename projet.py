@@ -107,7 +107,7 @@ print("Graphique enregistré dans le fichier figure_2_1.jpg")
 
 print("\nPARTIE 3\n")
 
-#1. Résidus et somme des carrés des erreurs (SCE)
+# 3.1. Résidus et somme des carrés des erreurs (SCE)
 e = y - y_pred
 
 SCE=0
@@ -116,7 +116,7 @@ for i in range(len(points)):
     SCE += e[i]**2 
 print("SCE (Somme des carrés des erreurs) :", SCE)
 
-#2. Etimation de la variance des erreurs : MSE
+# 3.2. Etimation de la variance des erreurs : MSE
 n= len(x)
 
 MSE = SCE / (n-2)
@@ -125,26 +125,26 @@ print("MSE (Erreur quadratique moyenne) :", MSE)
 
 #Le n-2 vient du fait qu'on a estimé 2 paramètres (b0 et b1). On parle alors de degrés de liberté.
 
-#3. Ecart-type des erreurs
+# 3.3. Ecart-type des erreurs
 s = np.sqrt(MSE)
 
 print("Écart-type des erreurs :", s)
 
-#4. Interprétation des Résultats
+# 3.4. Interprétation des Résultats
 
-# 🔹 Interprétation des coefficients
+#     - Interprétation des coefficients
 
 #     b0=3.33 (ordonnée à l'origine) : c'est la valeur estimée de y quand x=0. Cela signifie qu'à l'origine de l'axe x, la droite de régression prévoit y=3.33.
 
 #     b1=−0.15 (pente) : chaque augmentation de 1 unité en x entraîne une baisse moyenne de y de 0.15. La relation est donc légèrement décroissante, mais très faible.
 
-# 🔹 Coefficient de détermination R2
+#     - Coefficient de détermination R2
 
 #     Le R2=0.049 (soit 4.9%) indique que seulement 4.9% de la variation de y est expliquée par la variable x.
 
 #     Cela signifie que la droite de régression explique très peu la variabilité des points. La majorité de la variation de y provient donc d'autres facteurs non capturés par ce modèle.
 
-# 🔹 Analyse des erreurs
+#     - Analyse des erreurs
 
 #     SCE (Somme des carrés des erreurs) : 11.42
 #     → mesure l’erreur globale du modèle (plus elle est faible, meilleur est l’ajustement).
@@ -277,7 +277,7 @@ print("\nPARTIE 5\n")
 
 # Classification Ascendante Hiérarchique (CAH)
 
-# 1.a
+# 5.1.a.
 def dist(p1, p2):
     '''
     Cette fonction prend deux couples de points en paramètre et retourne une distance entre ces deux points
@@ -290,7 +290,7 @@ def dist(p1, p2):
     print("La distance euclidienne vaut : ", distance)
     return distance
 
-# 1.b
+# 5.1.b.
 def dist1(p1, p2):
     '''
     Cette fonction prend deux couples de points en paramètre et retourne une distance entre ces deux points
@@ -303,7 +303,7 @@ def dist1(p1, p2):
     print("La distance de Manhattan vaut : ", distance)
     return distance
 
-# 1.c
+# 5.1.c.
 def dist_inf(p1, p2):
     '''
     Cette fonction prend deux couples de points en paramètre et retourne une distance entre ces deux points
@@ -316,10 +316,22 @@ def dist_inf(p1, p2):
     print("La distance de Chebyshev vaut : ", distance)
     return distance
 
-# 1.d : Distance de Ward ???
+# 5.1.d. : Distance de Ward ???
+
+    '''
+        La distance de Ward ne mesure pas une simple distance géométrique entre deux points, 
+    mais l’augmentation de la variance intra-classe qu'engendrerait la fusion de deux groupes.
+    Elle favorise des regroupements compacts, homogènes, et tend à éviter que des points trop éloignés 
+    soient prématurément fusionnés. C’est pourquoi elle est souvent utilisée dans la Classification Ascendante Hiérarchique (CAH),
+    notamment pour éviter la formation de groupes déséquilibrés.
+    
+    Distance de Ward entre un groupe 1 et un groupe 2 :
+    
+        ((len(gp1)*len(gp2))/(len(gp1)+len(gp2)))*(np.abs(np.mean(gp1)-np.mean(gp2))**2)
+    '''
 
 
-# 2.
+# 5.2.
 def dist_min(tableau, dist_func):
     '''
     Cette fonction prend un tableau et une fonction en paramètre et retourne un couple de point situés à une distance minimale l'un de l'autre
@@ -338,7 +350,7 @@ def dist_min(tableau, dist_func):
     return couple_points, min_d                             
 
 
-# 3.
+# 5.3.
 
 # Initialisation de la matrice
 n = len(x)                                                  #Définit la taille de la matrice carré
@@ -384,7 +396,7 @@ plt.ylim(0, 6)
 # print("Graphique enregistré dans le fichier figure_5_3.jpg")
 
 
-#4.
+# 5.4.
 # Points de Gamma1 (groupe initial)
 # dist_min retourne un couple de points (p1, p2)
 p1, p2 = pair_min
@@ -570,7 +582,7 @@ plt.plot(x_vals2, y_vals2, 'ro--', label="Classe Γ2")
 plt.scatter(x_vals2, y_vals2, color='red')
 
 
-#5.
+# 5.5.
 
 # Trouver Gamma3 (deux éléments les plus proches)
 p3_min, p4_min, d_min3 = trouver_distance_minimale(matrice_3, noms_total2)
@@ -643,7 +655,7 @@ plt.plot(x_vals3, y_vals3, 'o--', color='orange', label="Classe Γ3")
 plt.scatter(x_vals3, y_vals3, color='orange')
 plt.show()
 
-# 6.
+# 5.6.
 
 # Étape 1 : calcul de la matrice de linkage avec méthode "single"
 # La fonction linkage construit la hiérarchie de regroupement en utilisant la distance euclidienne.
@@ -664,7 +676,7 @@ plt.ylabel('Distance euclidienne')
 plt.grid(True)
 plt.show()
 
-# 7.
+# 5.7.
 # On repart du dendogramme que l'on a construit dans la question 6 
 plt.figure(figsize=(10, 6))
 dendrogram(linked, labels=noms)
@@ -685,5 +697,5 @@ print("Groupes obtenus (avec seuil de distance =", seuil, ") :")
 for i, nom in enumerate(noms):
     print(f"{nom} → Groupe {groupes[i]}")
 
-# 8.
+# 5.8.
 
