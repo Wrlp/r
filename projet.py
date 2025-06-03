@@ -279,6 +279,12 @@ print("\nPARTIE 5\n")
 
 # 1.a
 def dist(p1, p2):
+    '''
+    Cette fonction prend deux couples de points en paramètre et retourne une distance entre ces deux points
+    :param p1 : premier couple de point
+    :param p2 : second couple de point
+    :return : la distance entre ces deux points
+    '''
     """Distance euclidienne"""
     distance = math.sqrt((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2)
     print("La distance euclidienne vaut : ", distance)
@@ -286,6 +292,12 @@ def dist(p1, p2):
 
 # 1.b
 def dist1(p1, p2):
+    '''
+    Cette fonction prend deux couples de points en paramètre et retourne une distance entre ces deux points
+    :param p1 : premier couple de point
+    :param p2 : second couple de point
+    :return : la distance entre ces deux points
+    '''
     """Distance de Manhattan"""
     distance = abs(p1[0]-p2[0]) + abs(p1[1]-p2[1])
     print("La distance de Manhattan vaut : ", distance)
@@ -293,6 +305,12 @@ def dist1(p1, p2):
 
 # 1.c
 def dist_inf(p1, p2):
+    '''
+    Cette fonction prend deux couples de points en paramètre et retourne une distance entre ces deux points
+    :param p1 : premier couple de point
+    :param p2 : second couple de point
+    :return : la distance entre ces deux points
+    '''
     """Distance de Chebyshev (max)"""
     distance = max(abs(p1[0]-p2[0]), abs(p1[1]-p2[1]))
     print("La distance de Chebyshev vaut : ", distance)
@@ -302,13 +320,13 @@ def dist_inf(p1, p2):
 
 
 # 2.
-'''
-La fonction dist_min est une fonction permettant de retourner un couple de point situés à une distance minimale l'un de l'autre
-paramètre
-    tableau : un tableau de points
-    dist_func : la fonction du calcul de la distance entre deux points que l'on veut utiliser
-'''
 def dist_min(tableau, dist_func):
+    '''
+    Cette fonction prend un tableau et une fonction en paramètre et retourne un couple de point situés à une distance minimale l'un de l'autre
+    :param : tableau : un tableau de points
+    :param :dist_func : la fonction du calcul de la distance entre deux points que l'on veut utiliser
+    :return :un couple de points
+    '''
     min_d = float('inf')
     couple_points = None
     for i in range(len(tableau)):
