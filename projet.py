@@ -457,9 +457,7 @@ for a in range(taille):
             bx, by = Gamma1[1]
             matrice_2[a][b] = distance_point_segment(px, py, ax, ay, bx, by)
         else: #distance entre deux points
-            x1, y1 = reste_points[a - 1]
-            x2, y2 = reste_points[b - 1]
-            matrice_2[a][b] = (x1 - x2)**2 + (y1 - y2)**2
+            matrice_2[a][b] = dist(reste_points[a - 1],reste_points[b - 1])
 
 # Affichage final
 print("Matrice avec Gamma1 et les autres points (distances au carré) \n")
@@ -568,8 +566,8 @@ x2, y2 = coord_from_nom(p2_min, groupes_dict)
 x_vals2 = [x1, x2]
 y_vals2 = [y1, y2]
 
-plt.plot(x_vals2, y_vals2, 'bo--', label="Classe Γ2")
-plt.scatter(x_vals2, y_vals2, color='blue')
+plt.plot(x_vals2, y_vals2, 'ro--', label="Classe Γ2")
+plt.scatter(x_vals2, y_vals2, color='red')
 
 
 #5.
@@ -641,8 +639,8 @@ x2, y2 = coord_from_nom(p4_min, groupes_dict)
 x_vals3 = [x1, x2]
 y_vals3 = [y1, y2]
 
-plt.plot(x_vals3, y_vals3, 'go--', label="Classe Γ3")
-plt.scatter(x_vals3, y_vals3, color='green')
+plt.plot(x_vals3, y_vals3, 'o--', color='orange', label="Classe Γ3")
+plt.scatter(x_vals3, y_vals3, color='orange')
 plt.show()
 
 # 6.
