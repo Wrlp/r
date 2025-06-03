@@ -325,7 +325,7 @@ def dist_min(tableau, dist_func):
     Cette fonction prend un tableau et une fonction en paramètre et retourne un couple de point situés à une distance minimale l'un de l'autre
     :param : tableau : un tableau de points
     :param : dist_func : la fonction du calcul de la distance entre deux points que l'on veut utiliser
-    :return : un couple de points
+    :return : un couple de points et la distance qui les sépare
     '''
     min_d = float('inf')
     couple_points = None
@@ -334,31 +334,31 @@ def dist_min(tableau, dist_func):
             d = dist_func(tableau[i], tableau[j])           #Récupère la distance à partir de la fonction donnée en entrée
             if d < min_d:                                   #Calcul de toutes les distances entre les points et garde la distance minimum
                 min_d = d
-                couple_points = (tableau[i], tableau[j])
-    return couple_points, min_d
+                couple_points = (tableau[i], tableau[j])    #Couple de points le plus proche
+    return couple_points, min_d                             
 
 
 # 3.
 
 # Initialisation de la matrice
-n = len(x)
-matrice_1 = np.zeros((n, n))
+n = len(x)                                                  #Définit la taille de la matrice carré
+matrice_1 = np.zeros((n, n))                                #Rempli la matrice carré de taille n x n par des 0
 
 # Remplissage de la matrice avec d²
-for i in range(n):
-    for j in range(n):
-        xi, yi = points[i]
-        xj, yj = points[j]
-        d_eucli = dist(points[i], points[j])
-        d_eucli_2 = d_eucli**2
-        matrice_1[i][j] = d_eucli_2
+for i in range(n):                                          #Permet le remplissage d'une ligne
+    for j in range(n):                                      #Permet de passer d'une ligne à la suivante
+        xi, yi = points[i]                                  #Coordonnées d'une premier point i
+        xj, yj = points[j]                                  #Coordonnées d'un deuxième point j
+        d_eucli = dist(points[i], points[j])                #Calcul de la distance euclidienne entre ces 2 points
+        d_eucli_2 = d_eucli**2                              #Calcul du carré de la distance euclidienne
+        matrice_1[i][j] = d_eucli_2                         #Rempli la matrice avec les valeurs obtenues
 
 # Affichage avec pandas pour lisibilité
-data = pd.DataFrame(matrice_1, index=y, columns=x)
+data = pd.DataFrame(matrice_1, index=y, columns=x)          #Affiche la matrice dans le terminal (avec les coordonnées x et y pour les colonnes et les lignes)
 print("Matrice des distances euclidiennes au carré :\n")
 print(data.round(1))
 
-# Tracé
+# Tracé du graphique de base 
 plt.scatter(x, y, color='blue')
 for i in range(len(points)):
     plt.text(x[i] + 0.1, y[i] + 0.1, noms[i])
@@ -366,16 +366,13 @@ plt.title("Nuage de points")
 plt.xlabel("x")
 plt.ylabel("y")
 
+# Récupération des coordonnées des 2 points de la paire la plus proche et calcul de la distance qui les sépare
 pair_min, d_min = dist_min(points, dist)
-
 print("La paire de points les plus proche est : ", pair_min)
-
 x_vals = [pair_min[0][0], pair_min[0][1]]
 y_vals = [pair_min[1][0], pair_min[1][1]]
 
-#x_vals, y_vals = dist_min(matrice_1, dist)
-
-# Encadrer les 2 points les plus proches (Classe Γ₁)
+# Relier/Encadrer les 2 points les plus proches (Classe Γ₁)
 plt.plot(x_vals, y_vals, 'ro--', label="Classe Γ₁")
 plt.scatter(x_vals, y_vals, color='red')
 plt.title("Regroupement des 2 points les plus proches")
