@@ -7,7 +7,6 @@ import pandas as pd
 points =[(1,1),(1,2),(1,5),(3,4),(4,3),(6,2),(0,4)]
 noms= ["M1", "M2", "M3", "M4", "M5", "M6", "M7"]
 
-
 #########################################
 #               Partie 1                #
 #########################################
@@ -280,8 +279,8 @@ matrice_1 = np.zeros((n, n))
 # Remplissage de la matrice avec d²
 for i in range(n):
     for j in range(n):
-        xi, yi = points[x[i]]
-        xj, yj = points[x[j]]
+        xi, yi = points[i]
+        xj, yj = points[j]
         d_squared = (xi - xj)**2 + (yi - yj)**2
         matrice_1[i][j] = d_squared
 
@@ -290,7 +289,7 @@ data = pd.DataFrame(matrice_1, index=x, columns=x)
 print("Matrice des distances euclidiennes au carré :\n")
 print(data.round(1))
 
-
+'''
 # Encadrer M1 et M7 (Classe Γ₁)
 x_vals = [points["M1"][0], points["M7"][0]]
 y_vals = [points["M1"][1], points["M7"][1]]
@@ -304,3 +303,93 @@ plt.show()
 
 plt.savefig("figure_5_3.jpg")
 print("Graphique enregistré dans le fichier figure_5_3.jpg")
+'''
+
+#4.
+
+# Trouver le couple le plus proche
+min_dist = float('inf') #valeur très grande (infini)
+min_pair = (0, 0) 
+
+min_pair, min_dist = dist_min(points, dist)
+
+# Points de Gamma1 (groupe initial)
+# dist_min retourne un couple de points (p1, p2)
+p1, p2 = min_pair
+
+# retrouver les indices de ces points dans la liste points
+i = points.index(p1)
+j = points.index(p2)
+
+Gamma1 = [points[i], points[j]]
+Gamma1_nom = "G1"
+
+# Points restants
+reste_points = []
+reste_noms = []
+for k in range(n):
+    if k != i and k != j:
+        reste_points.append(points[k])
+        reste_noms.append(noms[k])
+
+# Fonction : distance entre un point et un segment [A,B]
+'''calcule la distance au carré entre un point P(px, py) et
+un segment défini par les points A(ax, ay) et B(bx, by)'''
+def distance_point_segment(px, py, ax, ay, bx, by):
+    #Composantes du vecteur AB
+    ABx = bx - ax
+    ABy = by - ay
+
+    #Composantes du vecteur AP
+    APx = px - ax
+    APy = py - ay
+
+    #Carré de la longueur du segment AB
+    ab2 = ABx**2 + ABy**2
+    if ab2 == 0: #si A et B sont confondus, alors c'est une distance avec un point
+        return (px - ax)**2 + (py - ay)**2
+    
+    #Projection orthogonale
+    t = (APx * ABx + APy * ABy) / ab2
+    if t < 0: #la projection est avant A donc A est le plus proche
+        closest_x, closest_y = ax, ay
+    elif t > 1: #la projection est après B donc B est le plus proche
+        closest_x, closest_y = bx, by
+    else:
+        closest_x = ax + t * ABx
+        closest_y = ay + t * ABy
+
+    #On retourne la distance au carré entre P et le point le plus proche du segment AB
+    dx = px - closest_x
+    dy = py - closest_y
+
+    return dx**2 +dy**2
+
+# Matrice 6x6 : Gamma1 + 5 autres points
+noms_total = [Gamma1_nom] + reste_noms
+taille = len(noms_total)
+matrice_2 = np.zeros((taille, taille))
+
+for a in range(taille):
+    for b in range(taille):
+        if a == b: #la matrice est nulle sur la diagonale
+            matrice_2[a][b] = 0
+        elif a == 0: #distance entre le point et Gamma 1 (distance segment-point)
+            px, py = reste_points[b - 1]
+            ax, ay = Gamma1[0]
+            bx, by = Gamma1[1]
+            matrice_2[a][b] = distance_point_segment(px, py, ax, ay, bx, by)
+        elif b == 0: #distance entre Gamma 1 et le point (distance segment-point)
+            px, py = reste_points[a - 1]
+            ax, ay = Gamma1[0]
+            bx, by = Gamma1[1]
+            matrice_2[a][b] = distance_point_segment(px, py, ax, ay, bx, by)
+        else: #distance entre deux points
+            x1, y1 = reste_points[a - 1]
+            x2, y2 = reste_points[b - 1]
+            matrice_2[a][b] = (x1 - x2)**2 + (y1 - y2)**2
+
+# Affichage final
+print("Matrice avec Gamma1 et les 5 autres points (distances au carré) \n")
+df = pd.DataFrame(matrice_2, index=noms_total, columns=noms_total)
+print(df.round(1))
