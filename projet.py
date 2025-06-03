@@ -263,6 +263,24 @@ def dist_min(tableau, dist_func):
 
 # 3.
 
+# Initialisation de la matrice
+n = len(x)
+matrice_1 = np.zeros((n, n))
+
+# Remplissage de la matrice avec d²
+for i in range(n):
+    for j in range(n):
+        xi, yi = points[i]
+        xj, yj = points[j]
+        d_eucli = dist(points[i], points[j])
+        d_eucli_2 = d_eucli**2
+        matrice_1[i][j] = d_eucli_2
+
+# Affichage avec pandas pour lisibilité
+data = pd.DataFrame(matrice_1, index=y, columns=x)
+print("Matrice des distances euclidiennes au carré :\n")
+print(data.round(1))
+
 # Tracé
 plt.scatter(x, y, color='blue')
 for i in range(len(points)):
@@ -273,30 +291,24 @@ plt.ylabel("y")
 plt.grid()
 plt.show()
 
-# Initialisation de la matrice
-n = len(x)
-matrice_1 = np.zeros((n, n))
 
-# Remplissage de la matrice avec d²
-for i in range(n):
-    for j in range(n):
-        xi, yi = points[x[i]]
-        xj, yj = points[x[j]]
-        d_squared = (xi - xj)**2 + (yi - yj)**2
-        matrice_1[i][j] = d_squared
+pair_min, d_min = dist_min(points, dist)
 
-# Affichage avec pandas pour lisibilité
-data = pd.DataFrame(matrice_1, index=x, columns=x)
-print("Matrice des distances euclidiennes au carré :\n")
-print(data.round(1))
+print(pair_min)
 
+x_vals = [pair_min[0][0], pair_min[0][1]]
+y_vals = [pair_min[1][0], pair_min[1][1]]
+
+#plt.plot(x_vals, y_vals, 'ro--')
+
+#x_vals, y_vals = dist_min(matrice_1, dist)
 
 # Encadrer M1 et M7 (Classe Γ₁)
-x_vals = [points[0][0], points[6][0]]
-y_vals = [points[0][1], points[6][1]]
-#plt.plot(x_vals, y_vals, 'ro--')
+#x_vals = [points[0][0], points[6][0]]
+#y_vals = [points[0][1], points[6][1]]
+plt.plot(x_vals, y_vals, 'ro--', label="Classe Γ₁")
 plt.scatter(x_vals, y_vals, color='red')
-plt.title("Regroupement initial : Classe Γ₁ = {M1, M7}")
+plt.title("Regroupement des 2 points les plus proches")
 plt.grid(True)
 plt.xlim(-1, 7)
 plt.ylim(0, 6)
@@ -304,3 +316,5 @@ plt.show()
 
 plt.savefig("figure_5_3.jpg")
 print("Graphique enregistré dans le fichier figure_5_3.jpg")
+
+
