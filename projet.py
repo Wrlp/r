@@ -651,4 +651,3 @@ print(f"\nMeilleur nombre de groupes : {best_k} avec un coefficient de silhouett
 #     ≈ 0 : groupes qui se chevauchent.
 #     < 0 : Mauvais regroupement
 
-
