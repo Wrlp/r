@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
-from scipy.cluster.hierarchy import linkage, dendrogram
+from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
 import math
 import pandas as pd
 
@@ -375,7 +375,7 @@ y_vals = [pair_min[1][0], pair_min[1][1]]
 # Relier/Encadrer les 2 points les plus proches (Classe Γ₁)
 plt.plot(x_vals, y_vals, 'ro--', label="Classe Γ₁")
 plt.scatter(x_vals, y_vals, color='red')
-plt.title("Regroupement des 2 points les plus proches")
+plt.title("Regroupement en classes")
 plt.grid(True)
 plt.xlim(-1, 7)
 plt.ylim(0, 6)
@@ -462,7 +462,7 @@ for a in range(taille):
             matrice_2[a][b] = (x1 - x2)**2 + (y1 - y2)**2
 
 # Affichage final
-print("Matrice avec Gamma1 et les 5 autres points (distances au carré) \n")
+print("Matrice avec Gamma1 et les autres points (distances au carré) \n")
 df = pd.DataFrame(matrice_2, index=noms_total, columns=noms_total)
 print(df.round(1))
 
@@ -547,28 +547,145 @@ for i in range(taille):
             matrice_2[a][b] = (x1 - x2)**2 + (y1 - y2)**2
 
 # Affichage final
-print("Matrice avec Gamma1, Gamma2 et les autres points (distances au carré) \n")
+print("Matrice avec Gamma2 et les autres points (distances au carré) \n")
 df = pd.DataFrame(matrice_3, index=noms_total2, columns=noms_total2)
 print(df.round(1))
 
 #Tracé
 
 '''récupère les coordonnées des points sachant qu'on connait leurs noms'''
-def coord_from_nom(nom):
-    if nom == "G1":
-        return Gamma1[0]  # ou centre du groupe si tu veux
-    elif nom == "G2":
-        return Gamma2[0]
+def coord_from_nom(nom, groupes_dict):
+    if nom in groupes_dict:
+        return groupes_dict[nom][0]
     else:
         return points[noms.index(nom)]
 
+groupes_dict = {"G1": Gamma1, "G2": Gamma2}
 
-x1, y1 = coord_from_nom(p1_min)
-x2, y2 = coord_from_nom(p2_min)
+x1, y1 = coord_from_nom(p1_min, groupes_dict)
+x2, y2 = coord_from_nom(p2_min, groupes_dict)
 
 x_vals2 = [x1, x2]
 y_vals2 = [y1, y2]
 
 plt.plot(x_vals2, y_vals2, 'bo--', label="Classe Γ2")
 plt.scatter(x_vals2, y_vals2, color='blue')
+
+
+#5.
+
+# Trouver Gamma3 (deux éléments les plus proches)
+p3_min, p4_min, d_min3 = trouver_distance_minimale(matrice_3, noms_total2)
+
+Gamma3_noms = [p3_min, p4_min]
+Gamma3 = []
+
+reste_points3 = []
+reste_noms3 = []
+
+for i in range(len(noms_total2)):
+    nom = noms_total2[i]
+    pt = tous_points[i]  # soit un groupe, soit un point (encapsulé dans une liste)
+
+    if nom in Gamma3_noms:
+        Gamma3 += pt  # ajoute les points au nouveau groupe
+    else:
+        reste_points3.append(pt)
+        reste_noms3.append(nom)
+
+noms_total3 = ["G3"] + reste_noms3
+tous_points3 = [Gamma3] + reste_points3
+
+taille4 = len(tous_points3)
+matrice_4 = np.zeros((taille4, taille4))
+
+for i in range(taille4):
+    for j in range(taille4):
+        if i == j:
+            matrice_4[i][j] = 0
+        else:
+             # Si un des deux est un groupe (contient 2 points), on fait la distance segment-point
+            if len(tous_points3[i]) == 2 and len(tous_points3[j]) == 1:
+                px, py = tous_points3[j][0]
+
+                #i est le segment
+                ax, ay = tous_points3[i][0]
+                bx, by = tous_points3[i][1]
+
+                matrice_4[i][j] = distance_point_segment(px, py, ax, ay, bx, by)
+
+            elif len(tous_points3[i]) == 1 and len(tous_points3[j]) == 2:
+                px, py = tous_points3[i][0]
+
+                #j est le segment
+                ax, ay = tous_points3[j][0]
+                bx, by = tous_points3[j][1]
+                matrice_4[i][j] = distance_point_segment(px, py, ax, ay, bx, by)
+            else:
+                #distance entre deux points
+                x1, y1 = tous_points3[i][0]
+                x2, y2 = tous_points3[j][0]
+
+                matrice_4[i][j] = (x1 - x2)**2 + (y1 - y2)**2
+
+
+df = pd.DataFrame(matrice_4, index=noms_total3, columns=noms_total3)
+print("Matrice avec Gamma3 et les autres points :\n")
+print(df.round(1))
+
+groupes_dict = {"G1": Gamma1, "G2": Gamma2, "G3": Gamma3}
+
+x1, y1 = coord_from_nom(p3_min, groupes_dict)
+x2, y2 = coord_from_nom(p4_min, groupes_dict)
+
+x_vals3 = [x1, x2]
+y_vals3 = [y1, y2]
+
+plt.plot(x_vals3, y_vals3, 'go--', label="Classe Γ3")
+plt.scatter(x_vals3, y_vals3, color='green')
 plt.show()
+
+# 6.
+
+# Étape 1 : calcul de la matrice de linkage avec méthode "single"
+# La fonction linkage construit la hiérarchie de regroupement en utilisant la distance euclidienne.
+# Ici, on utilise la méthode 'single' (plus proche voisin), ce qui signifie que la distance entre deux groupes est définie comme la distance minimale entre un point de l'un et un point de l'autre.
+# Cette ligne automatise toutes les étapes de fusion des groupes jusqu'à ce qu'il n'en reste plus qu'un.
+linked = linkage(points, method='single', metric='euclidean') # La variable linked contient toutes les étapes de regroupement.
+
+# Étape 2 : Affichage du dendrogramme
+# La fonction dendrogram() affiche visuellement les fusions successives entre groupes.
+# Chaque branche représente une étape de regroupement ; plus elle est haute, plus la distance entre les groupes fusionnés est grande.
+# Les labels permettent de visualiser quels points (M1 à M7) sont fusionnés à chaque étape.
+# Cela remplace et résume graphiquement toutes les étapes manuelles de la classification (Γ1, Γ2, etc.).
+plt.figure(figsize=(10, 6))
+dendrogram(linked, labels=noms)
+plt.title('Dendrogramme - CAH (single linkage)')
+plt.xlabel('Points')
+plt.ylabel('Distance euclidienne')
+plt.grid(True)
+plt.show()
+
+# 7.
+# On repart du dendogramme que l'on a construit dans la question 6 
+plt.figure(figsize=(10, 6))
+dendrogram(linked, labels=noms)
+plt.title('Dendrogramme - CAH (single linkage)')
+plt.xlabel('Points')
+plt.ylabel('Distance euclidienne')
+seuil = 2 # seuile de découpe, on ne peut pas mettre au-dessus de la hauteur finale du dendogramme
+# le seuil de découpe permet de former des groupes, il faut couper juste avant la hauteur finale du dendogramme
+plt.axhline(y=seuil, color='red', linestyle='--', label=f'Seuil = {seuil}') # ajoute une ligne horizontale
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# Créer les groupes à partir du seuil
+groupes = fcluster(linked, t=seuil, criterion='distance') # Former des groupes 
+# Affichage des groupes formés, ce sont les classes obtenues
+print("Groupes obtenus (avec seuil de distance =", seuil, ") :")
+for i, nom in enumerate(noms):
+    print(f"{nom} → Groupe {groupes[i]}")
+
+# 8.
+
