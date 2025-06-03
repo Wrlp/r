@@ -6,6 +6,8 @@ import math
 import pandas as pd
 from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
 
 points =[(1,1),(1,2),(1,5),(3,4),(4,3),(6,2),(0,4)]
 noms= ["M1", "M2", "M3", "M4", "M5", "M6", "M7"]
@@ -322,16 +324,15 @@ def dist_inf(p1, p2):
 
     '''
         La distance de Ward ne mesure pas une simple distance géométrique entre deux points, 
-    mais l’augmentation de la variance intra-classe qu'engendrerait la fusion de deux groupes.
+    mais l'augmentation de la variance intra-classe qu'engendrerait la fusion de deux groupes.
     Elle favorise des regroupements compacts, homogènes, et tend à éviter que des points trop éloignés 
-    soient prématurément fusionnés. C’est pourquoi elle est souvent utilisée dans la Classification Ascendante Hiérarchique (CAH),
+    soient prématurément fusionnés. C'est pourquoi elle est souvent utilisée dans la Classification Ascendante Hiérarchique (CAH),
     notamment pour éviter la formation de groupes déséquilibrés.
     
     Distance de Ward entre un groupe 1 et un groupe 2 :
     
         ((len(gp1)*len(gp2))/(len(gp1)+len(gp2)))*(np.abs(np.mean(gp1)-np.mean(gp2))**2)
     '''
-
 
 # 5.2.
 def dist_min(tableau, dist_func):
@@ -765,6 +766,15 @@ for k in range(2, 11): # On teste les valeurs de k de 2 à 10, on commence à 2 
         best_k = k # On note la valeur de k correspondante
 
 print(f"\nMeilleur nombre de groupes : {best_k} avec un coefficient de silhouette de {best_score:.4f}") # On affiche le meilleur nombre de groupes et le meilleur score obtenu
+# Le coefficient de silhouette est de : 0.4907
+
+#########################################
+#               Partie 6                #
+#########################################
+
+print("\nPARTIE 6\n")
+
+# 6.1. - Indices d'évaluation
 
 # Le Silhouette Score mesure dans quelle mesure un objet est bien attribué à son groupe, par rapport aux autres groupes.
 # Pour un point ii, on calcule :
@@ -784,3 +794,42 @@ print(f"\nMeilleur nombre de groupes : {best_k} avec un coefficient de silhouett
 #     ≈ 0 : groupes qui se chevauchent.
 #     < 0 : Mauvais regroupement
 
+# 6.2 - Validation croisée
+
+# On compare avec une autre méthode de clustering : k-means
+for k in range(2, 11):
+    km = KMeans(n_clusters=k, random_state=0)
+    km_labels = km.fit_predict(data_scaled)
+    score = silhouette_score(data_scaled, km_labels)
+    print(f"k-means avec {k} groupes : silhouette = {score:.4f}")
+print("\n")
+# Le coefficient de silhouette avec la méthode k-means est de : 0,2065
+# Si on compare les deux scores de silhouettes, 0.4907 > 0,2065 donc la Classification Ascendante Hiérarchique (CAH) produit des groupes plus cohérents et mieux séparés sur ce jeu de données que k-means.
+
+# 6.3 - Interprétation des résultats
+
+# On recrée un DataFrame avec les données propres et les noms des individus
+final_labels = fcluster(huit, t=best_k, criterion='maxclust') # on calcul les labels finaux avec le meilleur k 
+df_clusters = data.copy()
+df_clusters['Nom'] = noms_tab2.values
+df_clusters['Cluster'] = final_labels
+# On exclut la colonne 'Nom' avant de faire la moyenne des variables par groupe
+print(df_clusters.drop(columns=['Nom']).groupby('Cluster').mean())
+
+
+# 6.5 - Visualisation avancée
+pca = PCA(n_components=2) # on réduit la dimension des données à 2 composantes principales, on conserve le maximum de variance possible
+X_pca = pca.fit_transform(data_scaled) # on applique la transformation ACP sur les données data_scaled (normalisées), et on stocke le résultat dans X_pca
+# X_pca est une matrice 2D (n_lignes × 2 colonnes), représentant chaque individu selon les deux axes principaux d'inertie.
+plt.scatter(X_pca[:,0], X_pca[:,1], c=final_labels, cmap='rainbow') # on trace un nuage de point
+plt.title("Projection ACP + Clusters")
+plt.show()
+
+print(pca.explained_variance_ratio_) # on affiche la variance expliquée par les 2 premières composantes
+
+
+# Chaque point représente un individu.
+# Les couleurs indiquent le groupe (cluster) auquel l’individu appartient (issu de la CAH).
+# Si les groupes forment des nuages bien séparés, cela indique une bonne qualité de clustering.
+# Si certains groupes sont chevauchants ou mélangés, cela peut indiquer une moins bonne séparation ou des groupes proches.
+# Ce type de visualisation est très utile pour confirmer visuellement ce que le Silhouette Score a mesuré numériquement : la qualité des regroupements.
