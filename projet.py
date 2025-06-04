@@ -407,33 +407,39 @@ plt.ylim(0, 6)
 #Fonctions nécessaires aux matrices
 
 def dist_groupe_point(groupe, point):
+    '''
+    Recherche la distance minimale entre un point et un ensemble de points
+    '''
     return min(dist(g, point) for g in groupe)
 
 def dist_groupe_groupe(groupe1, groupe2):
-    # distance minimale entre un point de groupe1 et un point de groupe2
+    '''
+    Recherche la distance minimale entre deux ensembles de points
+    '''
     return min(dist(p1, p2) for p1 in groupe1 for p2 in groupe2)
 
 def construire_matrice(groupes, points_restants):
-    """
-    Construit une matrice de distances entre les groupes (listes de points)
+    '''
+    Construit une matrice de distances entre les groupes (listes de points donc liste de liste si plusieurs points)
     et les points restants (points seuls).
-    """
+    '''
     n_groupes = len(groupes)
     n_restants = len(points_restants)
     taille = n_groupes + n_restants
+
     matrice = np.zeros((taille, taille))
     
     # Distances entre groupes
     for i in range(n_groupes):
-        for j in range(i + 1, n_groupes):
+        for j in range(i + 1, n_groupes): #on boucle que sur la partie supérieure car la matrice est symétrique
             d = dist_groupe_groupe(groupes[i], groupes[j])
             matrice[i, j] = d
-            matrice[j, i] = d
+            matrice[j, i] = d #on remplit la partie inférieure
 
     # Distances entre groupe et point
-    for i, groupe in enumerate(groupes):
+    for i, groupe in enumerate(groupes): #ajoute un index automatique et parcourt les points du groupe
         for j, point in enumerate(points_restants):
-            d = dist_groupe_point(groupe, point)
+            d = dist_groupe_point(groupe, point) #groupe prend un point du groupe et point parmi ceux restants
             matrice[i, n_groupes + j] = d
             matrice[n_groupes + j, i] = d
 
@@ -447,14 +453,17 @@ def construire_matrice(groupes, points_restants):
     return matrice
 
 def find_min(matrice):
-    """
+    '''
     Trouve la paire (i, j) avec la plus petite valeur dans la matrice,
-    en considérant uniquement les éléments au-dessus de la diagonale (j > i).
-    """
-    n = matrice.shape[0]
-    min_dist = float('inf')
-    fusion_indices = (None, None)
+    en considérant uniquement les éléments au-dessus de la diagonale (j > i) 
+    comme la matrice est symétrique
+    '''
+    n = matrice.shape[0] #nombre de lignes dans la matrice = nombre colonnes car symétrique
+
+    min_dist = float('inf') #on initialise le minimum à l'infini pour commencer
+    fusion_indices = (None, None) #on intialiser les indices
     
+    #Parcours de la matrice
     for i in range(n):
         for j in range(i + 1, n):
             if matrice[i, j] < min_dist:
@@ -466,6 +475,10 @@ def find_min(matrice):
 
 # Fonction pour récupérer un groupe ou un point isolé à partir d’un indice
 def get_groupe_ou_point(idx, points_isoles):
+    '''
+    Récupère si c'est un groupe ou un point isolé à partir d'un indice dans la matrice
+    car les groupes sont les premiers indices dans la matrice
+    '''
     if idx < len(groupes):
         return groupes[idx]
     else:
@@ -494,18 +507,28 @@ print("\n")
 
 #GAMMA 2
 
-# Trouver la paire avec la distance minimale (hors diagonale 0)
+# Trouver la paire avec la distance minimale
 fusion_indices = find_min(matrice_2)
 
-# On construit la liste des points formant Γ2 (fusion entre Γ1 et un point ou entre 2 points isolés)
-if 0 in fusion_indices:
-    autre_idx = fusion_indices[1] if fusion_indices[0] == 0 else fusion_indices[0]
-    classe_G2 = classe_G1 + [points_restants[autre_idx - 1]]
-else:
+# On construit la liste des points qui forment Γ2
+if 0 in fusion_indices: #si un des deux indices vaut 0, ça correspond à Γ1 dans la matrice
+
+    #Récupération de l'indice du point isolé
+
+    if fusion_indices[0]==0:#si Γ1 est le premier des deux indices
+        autre_idx = fusion_indices[1]
+    else:
+        autre_idx = fusion_indices[0]
+
+    classe_G2 = classe_G1 + [points_restants[autre_idx - 1]] #-1 car la matrice a un indice d'avance car elle comporte Γ1
+
+else: #si les deux indices sont des points isolés
+
     classe_G2 = [points_restants[fusion_indices[0] - 1], points_restants[fusion_indices[1] - 1]]
 
 print("Points dans Γ2 :", classe_G2, "\n")
 
+#Tracé sur le graphique de la classe Γ2
 
 # On récupère les indices des deux groupes à fusionner
 i1, i2 = fusion_indices
@@ -513,10 +536,12 @@ i1, i2 = fusion_indices
 # Si l'un est Γ1 (indice 0), on récupère le point isolé fusionné
 if i1 == 0:
     p1 = classe_G1[0]
-    p2 = points_restants[i2 - 1] #-1 car points_restants ne contient pas G1
+    p2 = points_restants[i2 - 1]
+
 elif i2 == 0:
     p1 = classe_G1[0]
     p2 = points_restants[i1 - 1]
+
 else:
     # Fusion entre deux points isolés
     p1 = points_restants[i1 - 1]
@@ -528,7 +553,6 @@ y_vals2=[p1[1], p2[1]]
 
 plt.plot(x_vals2, y_vals2, 'o--', color='orange', label="Classe Γ2")
 plt.scatter(x_vals2, y_vals2, color='orange')
-
 
 # 5.5.
 
@@ -730,6 +754,7 @@ for i in range(len(classes_etapes)):
     plt.ylabel("y")
     plt.legend()
     plt.grid(True)
+    plt.savefig(f"Classe {i+1}.png")
     plt.show()
 
 
