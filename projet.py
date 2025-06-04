@@ -873,11 +873,11 @@ print("\nPARTIE 6\n")
 # 6.1. - Indices d'évaluation
 
 # Le Silhouette Score mesure dans quelle mesure un objet est bien attribué à son groupe, par rapport aux autres groupes.
-# Pour un point ii, on calcule :
-#    a(i)a(i) : la distance moyenne entre ii et tous les autres points du même groupe.
-#    b(i)b(i) : la plus petite distance moyenne entre ii et tous les points des autres groupes (c'est-à-dire le groupe voisin le plus proche).
+# Pour un point i, on calcule :
+#    a(i) : la distance moyenne entre i et tous les autres points du même groupe.
+#    b(i) : la plus petite distance moyenne entre i et tous les points des autres groupes (c'est-à-dire le groupe voisin le plus proche).
 
-# Ensuite, on calcule le score silhouette de ii :
+# Ensuite, on calcule le score silhouette de i :
 #   s(i)=b(i)−a(i)max⁡(a(i),b(i))
 #   s(i)=max(a(i),b(i))b(i)−a(i)​
 # Interprétation :
