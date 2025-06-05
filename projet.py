@@ -8,6 +8,9 @@ from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+import seaborn as sns
+from scipy.spatial.distance import pdist, squareform
 
 points =[(1,1),(1,2),(1,5),(3,4),(4,3),(6,2),(0,4)]
 noms= ["M1", "M2", "M3", "M4", "M5", "M6", "M7"]
@@ -934,8 +937,12 @@ print(df_clusters.drop(columns=['Nom']).groupby('Cluster').var())
 
 
 # 6.5 - Visualisation avancée
-pca = PCA(n_components=2) # on réduit la dimension des données à 2 composantes principales, on conserve le maximum de variance possible
-X_pca = pca.fit_transform(data_scaled) # on applique la transformation ACP sur les données data_scaled (normalisées), et on stocke le résultat dans X_pca
+
+#ACP
+# on réduit la dimension des données à 2 composantes principales, on conserve le maximum de variance possible
+pca = PCA(n_components=2) 
+# on applique la transformation ACP sur les données data_scaled (normalisées), et on stocke le résultat dans X_pca
+X_pca = pca.fit_transform(data_scaled) 
 # X_pca est une matrice 2D (n_lignes × 2 colonnes), représentant chaque individu selon les deux axes principaux d'inertie.
 plt.scatter(X_pca[:,0], X_pca[:,1], c=final_labels, cmap='rainbow') # on trace un nuage de point
 plt.title("Projection ACP + Clusters")
@@ -949,3 +956,28 @@ print(pca.explained_variance_ratio_) # on affiche la variance expliquée par les
 # Si les groupes forment des nuages bien séparés, cela indique une bonne qualité de clustering.
 # Si certains groupes sont chevauchants ou mélangés, cela peut indiquer une moins bonne séparation ou des groupes proches.
 # Ce type de visualisation est très utile pour confirmer visuellement ce que le Silhouette Score a mesuré numériquement : la qualité des regroupements.
+
+#t-SNE 
+tsne = TSNE(n_components=2, perplexity=10, random_state=42) # on réduit à 2 dimensions, perplexity contrôle le voisinage, random_state fixe l’aléatoire pour reproduire les mêmes résultats à chaque exécution.
+X_tsne = tsne.fit_transform(data_scaled) # on applique la transformation t-SNE sur les données normalisées.
+# X_tsne est un tableau avec 2 colonnes, représentant les deux nouvelles dimensions
+plt.scatter(X_tsne[:, 0], X_tsne[:, 1], c=final_labels, cmap='rainbow') # on trace un nuage de points
+plt.title("Projection t-SNE + Clusters")
+plt.show()
+
+#heatmatap
+# Calcul de la matrice des distances euclidiennes
+distance_matrix = squareform(pdist(data_scaled, metric='euclidean')) #pdist(...) : calcule les distances entre chaque paire d’individus dans data_scaled
+# squareform(...) : convertit le vecteur des distances en matrice symétrique (n × n), où chaque case [i][j] correspond à la distance entre l’individu i et l’individu j.
+# Affichage de la heatmap
+plt.figure(figsize=(10, 8))
+# carte de chaleur
+# distance_matrix : matrice des distances à visualiser.
+sns.heatmap(distance_matrix, cmap='viridis') # cmap='viridis' : palette de couleurs (du violet au jaune) → plus la distance est petite, plus la couleur est foncée.
+plt.title("Heatmap des distances euclidiennes entre individus")
+plt.xlabel("Individus")
+plt.ylabel("Individus")
+plt.show()
+
+# Les zones sombres (proches de 0) indiquent que les individus sont très similaires (courte distance),
+# tandis que les zones claires indiquent des individus très différents.
