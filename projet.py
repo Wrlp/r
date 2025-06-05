@@ -913,7 +913,8 @@ for k in range(2, 11):
     print(f"k-means avec {k} groupes : silhouette = {score:.4f}")
 print("\n")
 # Le coefficient de silhouette avec la méthode k-means est de : 0,2065
-# Si on compare les deux scores de silhouettes, 0.4907 > 0,2065 donc la Classification Ascendante Hiérarchique (CAH) produit des groupes plus cohérents et mieux séparés sur ce jeu de données que k-means.
+# Si on compare les deux scores de silhouettes, 0.4907 > 0,2065 donc la Classification Ascendante Hiérarchique (CAH) 
+# produit des groupes plus cohérents et mieux séparés sur ce jeu de données que k-means.
 
 # 6.3 - Interprétation des résultats
 
