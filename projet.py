@@ -855,7 +855,7 @@ dendrogram(huit, labels=noms_tab2.tolist(), leaf_rotation=90)  # On affiche les 
 plt.title("Dendrogramme CAH")
 plt.xlabel("Individus")
 plt.ylabel("Distance")
-plt.axhline(y=12, color='r', linestyle='--') # Ligne horizontale suggérant une coupure (choix de nombre de groupes)
+plt.axhline(y=8, color='r', linestyle='--') # Ligne horizontale suggérant une coupure (choix de nombre de groupes)
 plt.tight_layout()
 plt.show()
 
@@ -866,7 +866,7 @@ print("\nÉvaluation du coefficient de silhouette pour différents groupes :")
 # coefficient de silhouette : mesure de la qualité d’un regroupement 
 best_score = -1 # On initialise le meilleur score à une valeur très basse
 best_k = None # Variable qui contiendra le meilleur nombre de groupes
-for k in range(2, 11): # On teste les valeurs de k de 2 à 10, on commence à 2 car à 1 les individus sont dans le même groupe, 10 car cela suffit pour ce jeu de données
+for k in range(2, 11): # On teste les valeurs de k de 2 à 10
     labels = fcluster(huit, t=k, criterion='maxclust') # On coupe l'arbre pour obtenir k groupes
     score = silhouette_score(data_scaled, labels) # On calcule le score de silhouette pour évaluer la qualité du regroupement
     print(f"{k} groupes : coefficient de silhouette = {score:.4f}") # Affichage du score
