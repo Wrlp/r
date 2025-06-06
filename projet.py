@@ -833,11 +833,12 @@ print(df.head())
 df = df.dropna(how='all') #supprime uniquement les lignes où TOUTES les valeurs sont manquantes
 
 # On sépare les colonnes des noms et des variables numériques
-noms_tab = df.iloc[:, 0]
+noms_tab = df.iloc[:, 0] #première colonne, toutes les lignes
 data = df.iloc[:, 1:].astype(float)  #on convertit en float pour éviter les erreurs
 
 # On convertit les colonnes en float (valeurs numériques)
-#si une valeur ne peut pas être convertie, elle sera remplacée par NaN (données manquantes)
+#coerce : si une valeur ne peut pas être convertie, elle sera remplacée par NaN (données manquantes)
+#apply : applique une fonction à chaque colonne
 data = data.apply(pd.to_numeric, errors='coerce')
 
 valid_rows = data.dropna() # On supprime les lignes contenant des NaN 
@@ -847,6 +848,8 @@ data = valid_rows # On remplace 'data' par la version nettoyée sans valeurs man
 #  On standardiser les données (centrer-réduire) : chaque colonne aura moyenne 0 et écart-type 1
 scaler = StandardScaler()
 data_scaled = scaler.fit_transform(data)
+#fit : calculer les paramètres nécessaires à la transformation
+#transform : applique la transformation calculée
 
 huit = linkage(data_scaled, method='ward') # On applique la Classification Ascendante Hiérarchique (CAH) avec la méthode de Ward
 
@@ -910,6 +913,8 @@ print("\nPARTIE 6\n")
 for k in range(2, 11):
     km = KMeans(n_clusters=k, random_state=0)
     km_labels = km.fit_predict(data_scaled)
+    #fit : ajuste le modèle aux données (calcule les centres de clusters)
+    #predict : attribue à chaque point une étiquette de cluster
     score = silhouette_score(data_scaled, km_labels)
     print(f"k-means avec {k} groupes : silhouette = {score:.4f}")
 print("\n")
@@ -922,6 +927,7 @@ print("\n")
 
 # On recrée un DataFrame avec les données propres et les noms des individus
 final_labels = fcluster(huit, t=best_k, criterion='maxclust') # on calcul les labels finaux avec le meilleur k 
+#maxclust : critère indiquant que t correspond au nombre maximal de clusters souhaité
 df_clusters = data.copy()
 df_clusters['Nom'] = noms_tab2.values
 df_clusters['Cluster'] = final_labels
@@ -929,6 +935,7 @@ df_clusters['Cluster'] = final_labels
 
 print("\nCalcul de la moyenne des données")
 print(df_clusters.drop(columns=['Nom']).groupby('Cluster').mean())
+#supprime la colonne nom -> crée des groupes correspondant à chaque cluster identifié -> calcule la moyenne des colonnes numériques pour chaque groupe
 
 print("\nCalcul de la médiane des données")
 print(df_clusters.drop(columns=['Nom']).groupby('Cluster').median())
@@ -945,7 +952,7 @@ pca = PCA(n_components=2)
 # on applique la transformation ACP sur les données data_scaled (normalisées), et on stocke le résultat dans X_pca
 X_pca = pca.fit_transform(data_scaled) 
 # X_pca est une matrice 2D (n_lignes × 2 colonnes), représentant chaque individu selon les deux axes principaux d'inertie.
-plt.scatter(X_pca[:,0], X_pca[:,1], c=final_labels, cmap='rainbow') # on trace un nuage de point
+plt.scatter(X_pca[:,0], X_pca[:,1], c=final_labels, cmap='rainbow') # on trace un nuage de point, rainbow : palette de couleurs utilisée
 plt.title("Projection ACP + Clusters")
 plt.show()
 
